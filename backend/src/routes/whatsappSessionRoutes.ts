@@ -1,5 +1,6 @@
 import { Router } from "express";
 import isAuth from "../middleware/isAuth";
+import isAuthApi from "../middleware/isAuthApi";
 
 import WhatsAppSessionController from "../controllers/WhatsAppSessionController";
 
@@ -15,6 +16,12 @@ whatsappSessionRoutes.put(
   "/whatsappsession/:whatsappId",
   isAuth,
   WhatsAppSessionController.update
+);
+
+whatsappSessionRoutes.put(
+  "/whatsappsessionApi/:whatsappIdClient",
+  isAuthApi,
+  WhatsAppSessionController.updateApi
 );
 
 whatsappSessionRoutes.delete(
