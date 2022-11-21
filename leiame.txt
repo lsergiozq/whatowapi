@@ -1,0 +1,82 @@
+arquivo na pasta script
+os tokens devem ser melhorados e não devem ficar visíveis
+
+onde: 
+	197135b3-649f-45bd-a074-6e702efe7b04 => Token para acesso a API
+	ca5aced6-966f-4d1f-972c-85d742966578 => Guid do Cliente OW no Cloud
+
+
+///////////////////
+//Conecta com o Socket da API
+///////////////////
+function openSocket() {
+    return io('https://apiwaow.owcloud.com.br', {
+        query: {
+            auth_token: "197135b3-649f-45bd-a074-6e702efe7b04",
+        }, transports: ["websocket"]
+    });
+}
+///////////////////
+
+///////////////////
+//Aguardar o QRCode
+///////////////////
+function TesteSocket() {
+	var socket = openSocket();
+	socket.on("connect", () => {
+		console.log("connected");
+	});
+	socket.on("whatsappSession", data => {
+		console.log("idclient = " + data.session.idclient);
+		if (data.action === "update" && data.session.idclient === "ca5aced6-966f-4d1f-972c-85d742966578") {
+			console.log(data.session.qrcode);
+		}
+
+		if (data.action === "update" && data.session.qrcode === "") {
+			//Fechar o QRCode
+			//onClose();
+		}
+	});
+}
+///////////////////
+
+
+///////////////////
+//Inserir uma session
+///////////////////
+https://apiwaow.owcloud.com.br/api/session/insert/
+Autorização: 
+	bearer: 197135b3-649f-45bd-a074-6e702efe7b04
+	
+Corpo:
+{
+    "name": "ca5aced6-966f-4d1f-972c-85d742966578",
+    "description": "000000-11"
+}	
+///////////////////
+
+///////////////////
+//Solicitar novo QRCode
+///////////////////
+https://apiwaow.owcloud.com.br/whatsappsessionapi/ca5aced6-966f-4d1f-972c-85d742966578
+///////////////////
+
+
+///////////////////
+//Enviar mensagem
+///////////////////
+https://apiwaow.owcloud.com.br/api/messages/send/
+
+Autorização: 
+	bearer: 197135b3-649f-45bd-a074-6e702efe7b04
+	
+Corpo:	
+{
+    "name": "ca5aced6-966f-4d1f-972c-85d742966578",
+    "number": "5527981110703",
+    "body" : "Olá Mundo!"
+}
+///////////////////
+
+
+	
