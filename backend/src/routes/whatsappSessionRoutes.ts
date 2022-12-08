@@ -24,6 +24,12 @@ whatsappSessionRoutes.put(
   WhatsAppSessionController.updateApi
 );
 
+whatsappSessionRoutes.get(
+  "/whatsappsessionApi/:whatsappIdClient",
+  isAuthApi,
+  WhatsAppSessionController.show
+);
+
 whatsappSessionRoutes.delete(
   "/whatsappsession/:whatsappId",
   isAuth,

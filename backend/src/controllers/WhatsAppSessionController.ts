@@ -15,6 +15,14 @@ const store = async (req: Request, res: Response): Promise<Response> => {
   return res.status(200).json({ message: "Starting session." });
 };
 
+export const show = async (req: Request, res: Response): Promise<Response> => {
+  const { whatsappIdClient } = req.params;
+
+  const whatsappClient = await GetWhatsAppByIdClient(whatsappIdClient);
+
+  return res.status(200).json(whatsappClient);
+};
+
 const update = async (req: Request, res: Response): Promise<Response> => {
   const { whatsappId } = req.params;
 
@@ -63,4 +71,4 @@ const remove = async (req: Request, res: Response): Promise<Response> => {
   return res.status(200).json({ message: "Session disconnected." });
 };
 
-export default { store, remove, update, updateApi };
+export default { store, remove, update, updateApi, show };

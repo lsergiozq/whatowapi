@@ -12,15 +12,37 @@ import AppError from "./errors/AppError";
 import routes from "./routes";
 import { logger } from "./utils/logger";
 
+declare var process : {
+  env: {
+    FRONTEND_URL: string,
+    SENTRY_DSN: string
+  }
+}
+
 Sentry.init({ dsn: process.env.SENTRY_DSN });
 
 const app = express();
 
+var whitelist = ['',''];
+
+if (process.env.FRONTEND_URL !== ""){
+  whitelist = process.env.FRONTEND_URL.split(',');
+}
+
+
+var corsOptions = {
+  credentials: true,
+  origin: function (origin, callback) {
+    if (whitelist?.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
+}
+
 app.use(
-  cors({
-    credentials: true,
-    origin: process.env.FRONTEND_URL
-  })
+  cors(corsOptions)
 );
 
 app.use(express.json({

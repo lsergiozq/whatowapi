@@ -5,11 +5,35 @@ import { logger } from "../utils/logger";
 
 let io: SocketIO;
 
+declare var process : {
+  env: {
+    FRONTEND_URL: string,
+    SENTRY_DSN: string
+  }
+}
+
 export const initIO = (httpServer: Server): SocketIO => {
-  io = new SocketIO(httpServer, {
-    cors: {
-      origin: process.env.FRONTEND_URL
+
+
+  var whitelist = ['',''];
+
+  if (process.env.FRONTEND_URL !== ""){
+    whitelist = process.env.FRONTEND_URL.split(',');
+  }
+
+
+  var corsOptions = {    
+    origin: function (origin, callback) {
+      if (whitelist?.indexOf(origin) !== -1) {
+        callback(null, true)
+      } else {
+        callback(new Error('Not allowed by CORS'))
+      }
     }
+  }
+  io = new SocketIO(httpServer, {
+    cors: corsOptions
+    
   });
 
   io.on("connection", socket => {
