@@ -21,10 +21,9 @@ export const initIO = (httpServer: Server): SocketIO => {
     whitelist = process.env.FRONTEND_URL.split(',');
   }
 
-
   var corsOptions = {    
     origin: function (origin, callback) {
-      if (whitelist?.indexOf(origin) !== -1) {
+      if (whitelist?.indexOf(origin) !== -1 || origin === undefined) {
         callback(null, true)
       } else {
         callback(new Error('Not allowed by CORS'))
