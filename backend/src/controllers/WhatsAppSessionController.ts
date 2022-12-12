@@ -1,9 +1,12 @@
 import { Request, Response } from "express";
 import { getWbot } from "../libs/wbot";
+import { getIO } from "../libs/socket";
+import { removeWbot } from "../libs/wbot";
 import ShowWhatsAppService from "../services/WhatsappService/ShowWhatsAppService";
 import { StartWhatsAppSession } from "../services/WbotServices/StartWhatsAppSession";
 import UpdateWhatsAppService from "../services/WhatsappService/UpdateWhatsAppService";
 import DeleteBaileysService from "../services/BaileysServices/DeleteBaileysService";
+import DeleteWhatsAppService from "../services/WhatsappService/DeleteWhatsAppService";
 import GetWhatsAppByIdClient from "../helpers/GetWhatsAppByIdClient";
 
 const store = async (req: Request, res: Response): Promise<Response> => {
@@ -35,6 +38,30 @@ const update = async (req: Request, res: Response): Promise<Response> => {
   StartWhatsAppSession(whatsapp);
 
   return res.status(200).json({ message: "Starting session." });
+};
+
+const removeApi = async (req: Request, res: Response): Promise<Response> => {
+  const { whatsappIdClient } = req.params;
+
+  const whatsappClient = await GetWhatsAppByIdClient(whatsappIdClient);
+
+  if (whatsappClient)
+  { 
+    await DeleteBaileysService(whatsappClient.id);
+    const wbot = getWbot(whatsappClient.id);
+    wbot.logout();
+    await DeleteWhatsAppService(whatsappClient.id.toString());
+    
+    removeWbot(+whatsappClient.id);
+  
+   const io = getIO();
+   io.emit("whatsapp", {
+      action: "delete",
+      whatsappId: +whatsappClient.id
+   });
+}
+
+  return res.status(200).json({ message: "Session disconnected." });
 };
 
 const updateApi = async (req: Request, res: Response): Promise<Response> => {
@@ -71,4 +98,4 @@ const remove = async (req: Request, res: Response): Promise<Response> => {
   return res.status(200).json({ message: "Session disconnected." });
 };
 
-export default { store, remove, update, updateApi, show };
+export default { store, remove, update, updateApi, show, removeApi };
