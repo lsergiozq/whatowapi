@@ -7,6 +7,7 @@ import GetWhatsAppByName from "../helpers/GetWhatsAppByIdClient";
 import { StartWhatsAppSession } from "../services/WbotServices/StartWhatsAppSession";
 import CreateWhatsAppService from "../services/WhatsappService/CreateWhatsAppService";
 import DeleteWhatsAppService from "../services/WhatsappService/DeleteWhatsAppService";
+import SendWhatsAppMedia from "../helpers/SendWhatsAppMedia";
 
 type WhatsappData = {
   whatsappId: number;
@@ -29,16 +30,34 @@ interface SessionData {
 export const index = async (req: Request, res: Response): Promise<Response> => {
   const newContact: ContactData = req.body;
   const messageData: MessageData = req.body;
+  const medias = req.files as Express.Multer.File[];
 
   newContact.number = newContact.number.replace("-", "").replace(" ", "");
 
-  const whatapp = await GetWhatsAppByName(newContact.idclient);
+  const whatsapp = await GetWhatsAppByName(newContact.idclient);
   
-  await SendMessage(whatapp, 
-  { 
-      number: newContact.number, 
-      body: messageData.body  
-  });
+  if (medias && medias.length > 0) {
+    console.log(medias);
+    await Promise.all(
+      medias.map(async (media: Express.Multer.File) => {
+        await SendWhatsAppMedia(
+            { 
+              whatsapp: whatsapp,
+              media: media,
+              body: messageData.body,
+              number: newContact.number, 
+            });
+      })
+    );
+  } else {
+    console.log(medias);
+    await SendMessage(whatsapp, 
+      { 
+          number: newContact.number, 
+          body: messageData.body  
+      });
+  }
+  
   
   return res.send();
 };
