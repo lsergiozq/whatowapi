@@ -16,15 +16,42 @@ export const SendMessage = async (
 ): Promise<any> => {
   try {
     const wbot = await GetWhatsappWbot(whatsapp);
-    const jid = `${messageData.number}@s.whatsapp.net`;
-    let message: any;
-    const body = `\u200e${messageData.body}`;
+    //var jid = `${messageData.number}@s.whatsapp.net`;
+	
+	
+  var numberWA = messageData.number.toString();
 
-    message = await wbot.sendMessage(jid, {
-      text: body
-    });
-    
-    return message;
+	if (numberWA.length == 13)
+  {
+    numberWA = messageData.number.toString().substring(0,4) + messageData.number.toString().substring(5);
+  }
+
+	  var jid = `${numberWA}@s.whatsapp.net`;
+	
+	  var verify9Number = await wbot.onWhatsApp(jid);
+
+    if (verify9Number == null || verify9Number.length == 0 || verify9Number[0].exists == false)
+    {
+      jid = `${messageData.number}@s.whatsapp.net`;
+	  
+      verify9Number = await wbot.onWhatsApp(jid);
+    }
+
+    if (verify9Number != null && verify9Number.length > 0 && verify9Number[0].exists == true)
+    {
+      let message: any;
+      const body = `\u200e${messageData.body}`;
+
+      message = await wbot.sendMessage(verify9Number[0].jid, {
+        text: body
+      });
+      
+      return message;
+    }
+    else
+    {
+      return null;
+    }
     
   } catch (err: any) {
     console.log(err)

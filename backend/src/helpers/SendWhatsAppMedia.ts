@@ -105,13 +105,37 @@ export const SendWhatsAppMedia = async (
       };
     }
 
-    const jid = `${number}@s.whatsapp.net`;
+    var numberWA = number;
+    if (numberWA.length == 13)
+	  {
+		  numberWA = number.substring(0,4) + number.substring(5);
+	  }
 
-    const message = await wbot.sendMessage(jid, {
+    var jid = `${numberWA}@s.whatsapp.net`;
+	
+    var verify9Number = await wbot.onWhatsApp(jid);
+
+    if (verify9Number == null || verify9Number.length == 0 || verify9Number[0].exists == false)
+    {
+      jid = `${number}@s.whatsapp.net`;
+
+      verify9Number = await wbot.onWhatsApp(jid);
+    }
+
+
+    if (verify9Number != null && verify9Number.length > 0 && verify9Number[0].exists == true)
+    {
+      const message = await wbot.sendMessage(verify9Number[0].jid, {
         ...options
-    });
+      });
         
-    return message;
+      return message;
+    }
+    else
+    {
+      return null;
+    }
+    
 
   } catch (err) {
     console.log(err);
