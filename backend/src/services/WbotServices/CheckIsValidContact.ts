@@ -1,4 +1,4 @@
-import { WASocket } from "@adiwajshing/baileys";
+import { WASocket } from "@WhiskeysSockets/baileys";
 import AppError from "../../errors/AppError";
 import GetWhatsAppByIdClient from "../../helpers/GetWhatsAppByIdClient";
 import { getWbot } from "../../libs/wbot";

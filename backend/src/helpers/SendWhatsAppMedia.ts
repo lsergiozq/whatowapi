@@ -1,4 +1,4 @@
-import { WAMessage, AnyMessageContent } from "@adiwajshing/baileys";
+import { WAMessage, AnyMessageContent } from "@WhiskeysSockets/baileys";
 
 import GetWhatsappWbot from "./GetWhatsappWbot";
 import Whatsapp from "../models/Whatsapp";
@@ -105,23 +105,21 @@ export const SendWhatsAppMedia = async (
       };
     }
 
-    var numberWA = number;
-    if (numberWA.length == 13)
-	  {
-		  numberWA = number.substring(0,4) + number.substring(5);
-	  }
+    
 
-    var jid = `${numberWA}@s.whatsapp.net`;
+    var jid = `${number}@s.whatsapp.net`;
 	
     var verify9Number = await wbot.onWhatsApp(jid);
 
     if (verify9Number == null || verify9Number.length == 0 || verify9Number[0].exists == false)
     {
-      jid = `${number}@s.whatsapp.net`;
-
-      verify9Number = await wbot.onWhatsApp(jid);
+      if (number.length == 13)
+      {
+        const numberWA = number.substring(0,4) + number.substring(5);
+        jid = `${numberWA}@s.whatsapp.net`;
+        verify9Number = await wbot.onWhatsApp(jid);
+      }
     }
-
 
     if (verify9Number != null && verify9Number.length > 0 && verify9Number[0].exists == true)
     {

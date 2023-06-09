@@ -1,4 +1,4 @@
-import { Chat, Contact } from "@adiwajshing/baileys";
+import { Chat, Contact } from "@WhiskeysSockets/baileys";
 import Baileys from "../../models/Baileys";
 
 interface Request {

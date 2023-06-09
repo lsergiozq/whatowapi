@@ -2,7 +2,7 @@ import Whatsapp from "../models/Whatsapp";
 import GetWhatsappWbot from "./GetWhatsappWbot";
 import mime from "mime-types";
 import fs from "fs";
-import { AnyMessageContent } from "@adiwajshing/baileys";
+import { AnyMessageContent } from "@WhiskeysSockets/baileys";
 
 export type MessageData = {
   number: number | string;
@@ -19,22 +19,21 @@ export const SendMessage = async (
     //var jid = `${messageData.number}@s.whatsapp.net`;
 	
 	
-  var numberWA = messageData.number.toString();
+    var numberWA = messageData.number.toString();
 
-	if (numberWA.length == 13)
-  {
-    numberWA = messageData.number.toString().substring(0,4) + messageData.number.toString().substring(5);
-  }
+    var jid = `${numberWA}@s.whatsapp.net`;
 
-	  var jid = `${numberWA}@s.whatsapp.net`;
-	
-	  var verify9Number = await wbot.onWhatsApp(jid);
+    var verify9Number = await wbot.onWhatsApp(jid);
 
     if (verify9Number == null || verify9Number.length == 0 || verify9Number[0].exists == false)
     {
-      jid = `${messageData.number}@s.whatsapp.net`;
-	  
-      verify9Number = await wbot.onWhatsApp(jid);
+      if (numberWA.length == 13)
+      {
+        numberWA = messageData.number.toString().substring(0,4) + messageData.number.toString().substring(5);
+        jid = `${numberWA}@s.whatsapp.net`;
+
+        verify9Number = await wbot.onWhatsApp(jid);
+      }
     }
 
     if (verify9Number != null && verify9Number.length > 0 && verify9Number[0].exists == true)
