@@ -8,6 +8,7 @@ import { StartWhatsAppSession } from "../services/WbotServices/StartWhatsAppSess
 import CreateWhatsAppService from "../services/WhatsappService/CreateWhatsAppService";
 import DeleteWhatsAppService from "../services/WhatsappService/DeleteWhatsAppService";
 import SendWhatsAppMedia from "../helpers/SendWhatsAppMedia";
+import * as fs from 'fs/promises'; // Certifique-se de usar a versão do fs que suporta Promises
 
 type WhatsappData = {
   whatsappId: number;
@@ -37,7 +38,6 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
   const whatsapp = await GetWhatsAppByName(newContact.idclient);
   
   if (medias && medias.length > 0) {
-    console.log(medias);
     await Promise.all(
       medias.map(async (media: Express.Multer.File) => {
         await SendWhatsAppMedia(
@@ -47,10 +47,14 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
               body: messageData.body,
               number: newContact.number, 
             });
+          try {
+              // Exclui o arquivo de forma assíncrona
+              await fs.unlink(media.path);
+            } catch (error) {  }
+        
       })
     );
   } else {
-    console.log(medias);
     await SendMessage(whatsapp, 
       { 
           number: newContact.number, 

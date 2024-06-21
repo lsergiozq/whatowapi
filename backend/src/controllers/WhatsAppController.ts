@@ -6,6 +6,7 @@ import { StartWhatsAppSession } from "../services/WbotServices/StartWhatsAppSess
 import CreateWhatsAppService from "../services/WhatsappService/CreateWhatsAppService";
 import DeleteWhatsAppService from "../services/WhatsappService/DeleteWhatsAppService";
 import ListWhatsAppsService from "../services/WhatsappService/ListWhatsAppsService";
+import ListGridWhatsAppsService from "../services/WhatsappService/ListGridWhatsAppsService";
 import ShowWhatsAppService from "../services/WhatsappService/ShowWhatsAppService";
 import UpdateWhatsAppService from "../services/WhatsappService/UpdateWhatsAppService";
 
@@ -17,6 +18,12 @@ interface WhatsappData {
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
   const whatsapps = await ListWhatsAppsService();
+
+  return res.status(200).json(whatsapps);
+};
+
+export const indexGrid = async (req: Request, res: Response): Promise<Response> => {
+  const whatsapps = await ListGridWhatsAppsService();
 
   return res.status(200).json(whatsapps);
 };
