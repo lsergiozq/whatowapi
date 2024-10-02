@@ -20,9 +20,9 @@ const createOrUpdateBaileysService = async ({
     const getChats = baileysExists.chats
       ? JSON.parse(JSON.stringify(baileysExists.chats))
       : [];
-    const getContacts = baileysExists.contacts
-      ? JSON.parse(JSON.stringify(baileysExists.contacts))
-      : [];
+    // const getContacts = baileysExists.contacts
+    //   ? JSON.parse(JSON.stringify(baileysExists.contacts))
+    //   : [];
 
     if (chats) {
       getChats.push(...chats);
@@ -30,17 +30,16 @@ const createOrUpdateBaileysService = async ({
       getChats.filter((v: string, i: number, a: string) => a.indexOf(v) === i);
     }
 
-    if (contacts) {
-      getContacts.push(...contacts);
-      getContacts.sort();
-      getContacts.filter(
-        (v: string, i: number, a: string) => a.indexOf(v) === i
-      );
-    }
+    // if (contacts) {
+    //   getContacts.push(...contacts);
+    //   getContacts.sort();
+    //   getContacts.filter(
+    //     (v: string, i: number, a: string) => a.indexOf(v) === i
+    //   );
+    // }
 
     const newBaileys = await baileysExists.update({
-      chats: JSON.stringify(getChats),
-      contacts: JSON.stringify(getContacts)
+      chats: JSON.stringify(getChats)
     });
 
     return newBaileys;
