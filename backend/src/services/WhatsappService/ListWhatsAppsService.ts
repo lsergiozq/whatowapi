@@ -4,7 +4,7 @@ const ListWhatsAppsService = async (): Promise<Whatsapp[]> => {
 
   //verifica se process.env.API_ID possui valor, caso não atribui 1
   if(!process.env.API_ID){
-    process.env.API_ID = 1;
+    process.env.API_ID = '1';
   }
 
   //converte process.env.API_ID para inteiro
