@@ -7,8 +7,12 @@ const ListWhatsAppsService = async (): Promise<Whatsapp[]> => {
     process.env.API_ID = '1';
   }
 
+
+
   //converte process.env.API_ID para inteiro
   const apiId = parseInt(process.env.API_ID || '1', 10);
+
+  console.log('apiId', apiId);  
   
   const whatsapps = await Whatsapp.findAll({
     where:{ idapi: apiId }
