@@ -314,6 +314,9 @@ const Connections = () => {
 								Id Cliente
 							</TableCell>
 							<TableCell align="center">
+								ApiId
+							</TableCell>
+							<TableCell align="center">
 								{i18n.t("connections.table.session")}
 							</TableCell>
 							<TableCell align="center">
@@ -337,6 +340,7 @@ const Connections = () => {
 										<TableRow key={whatsApp.id}>
 											<TableCell align="center">{whatsApp.description}</TableCell>
 											<TableCell align="center">{whatsApp.idclient}</TableCell>
+											<TableCell align="center">{whatsApp.idapi}</TableCell>
 											<TableCell align="center">
 												{renderStatusToolTips(whatsApp)}
 											</TableCell>
