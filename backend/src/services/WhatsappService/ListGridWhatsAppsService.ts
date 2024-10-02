@@ -9,8 +9,7 @@ const ListGridWhatsAppsService = async (): Promise<Whatsapp[]> => {
       attributes: ['id', 'qrcode', 'status', 'battery', 'plugged', 'createdAt', 'updatedAt', 'idclient', 'retries', 'description', 'name', 'idapi'],
       order: [
         ['description', 'ASC']
-    }
-  );
+      ]});
 
   return whatsapps;
 };
