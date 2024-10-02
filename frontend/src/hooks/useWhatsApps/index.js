@@ -61,7 +61,7 @@ const useWhatsApps = () => {
 		setLoading(true);
 		const fetchSession = async () => {
 			try {
-				const { data } = await api.get("/whatsapp/");
+				const { data } = await api.get("/whatsapp/grid/");
 				dispatch({ type: "LOAD_WHATSAPPS", payload: data });
 				setLoading(false);
 			} catch (err) {

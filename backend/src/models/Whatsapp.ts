@@ -53,6 +53,9 @@ class Whatsapp extends Model<Whatsapp> {
   @UpdatedAt
   updatedAt: Date;
 
+  @Column
+  idapi: number;
+
 }
 
 export default Whatsapp;

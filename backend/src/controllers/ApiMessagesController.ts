@@ -9,6 +9,11 @@ import CreateWhatsAppService from "../services/WhatsappService/CreateWhatsAppSer
 import DeleteWhatsAppService from "../services/WhatsappService/DeleteWhatsAppService";
 import SendWhatsAppMedia from "../helpers/SendWhatsAppMedia";
 import * as fs from 'fs/promises'; // Certifique-se de usar a versão do fs que suporta Promises
+import Queue from 'bull';
+
+const messageQueue = new Queue('messageQueue', {
+  redis: { host: '127.0.0.1', port: 6379 },
+});
 
 type WhatsappData = {
   whatsappId: number;
@@ -28,6 +33,24 @@ interface SessionData {
   key: string;
 }
 
+// Definir o processador da fila
+messageQueue.process(async (job, done) => {
+  const { whatsapp, number, body, media } = job.data;
+  
+  try {
+    if (media) {
+      await SendWhatsAppMedia({ whatsapp, media, body, number });
+      await fs.unlink(media.path);
+    } else {
+      await SendMessage(whatsapp, { number, body });
+    }
+    done();
+  } catch (error) {
+    console.error('Erro ao enviar mensagem:', error);
+    done(error);
+  }
+});
+
 export const index = async (req: Request, res: Response): Promise<Response> => {
   const newContact: ContactData = req.body;
   const messageData: MessageData = req.body;
@@ -36,35 +59,28 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
   newContact.number = newContact.number.replace("-", "").replace(" ", "");
 
   const whatsapp = await GetWhatsAppByName(newContact.idclient);
-  
+
+  // Adiciona as mensagens na fila
   if (medias && medias.length > 0) {
-    await Promise.all(
-      medias.map(async (media: Express.Multer.File) => {
-        await SendWhatsAppMedia(
-            { 
-              whatsapp: whatsapp,
-              media: media,
-              body: messageData.body,
-              number: newContact.number, 
-            });
-          try {
-              // Exclui o arquivo de forma assíncrona
-              await fs.unlink(media.path);
-            } catch (error) {  }
-        
-      })
-    );
-  } else {
-    await SendMessage(whatsapp, 
-      { 
-          number: newContact.number, 
-          body: messageData.body  
+    medias.forEach((media: Express.Multer.File) => {
+      messageQueue.add({
+        whatsapp,
+        number: newContact.number,
+        body: messageData.body,
+        media,
       });
+    });
+  } else {
+    messageQueue.add({
+      whatsapp,
+      number: newContact.number,
+      body: messageData.body,
+    });
   }
-  
-  
+
   return res.send();
 };
+
 
 
 
