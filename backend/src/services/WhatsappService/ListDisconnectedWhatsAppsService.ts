@@ -5,7 +5,7 @@ const ListDisconnectedWhatsAppsService = async (): Promise<Whatsapp[]> => {
   const whatsapps = await Whatsapp.findAll(
     {
       attributes: ['idclient'],
-      where: { session: "DISCONNECTED" },
+      where: { status: "DISCONNECTED" },
       order: [
         ['description', 'ASC']
       ]});
