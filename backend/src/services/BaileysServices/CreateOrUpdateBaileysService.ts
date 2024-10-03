@@ -1,57 +1,33 @@
-import { Chat, Contact } from "@WhiskeysSockets/baileys";
-import Baileys from "../../models/Baileys";
+  import { Chat, Contact } from "@WhiskeysSockets/baileys";
+  import Baileys from "../../models/Baileys";
 
-interface Request {
-  whatsappId: number;
-  contacts?: Contact[];
-  chats?: Chat[];
-}
-
-const createOrUpdateBaileysService = async ({
-  whatsappId,
-  contacts,
-  chats
-}: Request): Promise<Baileys> => {
-  const baileysExists = await Baileys.findOne({
-    where: { whatsappId }
-  });
-
-  if (baileysExists) {
-    const getChats = baileysExists.chats
-      ? JSON.parse(JSON.stringify(baileysExists.chats))
-      : [];
-    // const getContacts = baileysExists.contacts
-    //   ? JSON.parse(JSON.stringify(baileysExists.contacts))
-    //   : [];
-
-    if (chats) {
-      getChats.push(...chats);
-      getChats.sort();
-      getChats.filter((v: string, i: number, a: string) => a.indexOf(v) === i);
-    }
-
-    // if (contacts) {
-    //   getContacts.push(...contacts);
-    //   getContacts.sort();
-    //   getContacts.filter(
-    //     (v: string, i: number, a: string) => a.indexOf(v) === i
-    //   );
-    // }
-
-    const newBaileys = await baileysExists.update({
-      chats: JSON.stringify(getChats)
-    });
-
-    return newBaileys;
+  interface Request {
+    whatsappId: number;
+    contacts?: Contact[];
+    chats?: Chat[];
   }
 
-  const baileys = await Baileys.create({
+  const createOrUpdateBaileysService = async ({
     whatsappId,
-    contacts: JSON.stringify(contacts),
-    chats: JSON.stringify(chats)
-  });
+    contacts,
+    chats
+  }: Request): Promise<Baileys> => {
+    const baileysExists = await Baileys.findOne({
+      where: { whatsappId }
+    });
 
-  return baileys;
-};
+    //se não existir, cria
+    if (!baileysExists) {
+      const baileys = await Baileys.create({
+        whatsappId    
+      });
 
-export default createOrUpdateBaileysService;
+      return baileys;
+    }
+    else{
+      return baileysExists;
+    }
+  
+  };
+
+  export default createOrUpdateBaileysService;

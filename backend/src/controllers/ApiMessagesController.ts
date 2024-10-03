@@ -11,7 +11,7 @@ import SendWhatsAppMedia from "../helpers/SendWhatsAppMedia";
 import * as fs from 'fs/promises'; // Certifique-se de usar a versão do fs que suporta Promises
 import Queue from 'bull';
 
-const messageQueue = new Queue('messageQueue', {
+const messageQueue = new Queue(`messageQueue${process.env.API_ID}`, {
   redis: { host: '127.0.0.1', port: 6379 },
 });
 
