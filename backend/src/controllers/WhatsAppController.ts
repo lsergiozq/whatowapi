@@ -9,6 +9,8 @@ import ListWhatsAppsService from "../services/WhatsappService/ListWhatsAppsServi
 import ListGridWhatsAppsService from "../services/WhatsappService/ListGridWhatsAppsService";
 import ShowWhatsAppService from "../services/WhatsappService/ShowWhatsAppService";
 import UpdateWhatsAppService from "../services/WhatsappService/UpdateWhatsAppService";
+import ListDisconnectedWhatsAppsService from "../services/WhatsappService/ListDisconnectedWhatsAppsService";
+import { registrationParams } from "@WhiskeysSockets/baileys/lib/Socket/registration";
 
 interface WhatsappData {
   idclient: string;
@@ -24,6 +26,17 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
 export const indexGrid = async (req: Request, res: Response): Promise<Response> => {
   const whatsapps = await ListGridWhatsAppsService();
+
+
+  //converte a lista whatsapps.idclient para uma lista de string com os idclients
+  const idclients = whatsapps.map(whatsapp => whatsapp.idclient);
+
+  //retorna a lista de idclients
+  return res.status(200).json(idclients);
+};
+
+export const indexDisconnected = async (req: Request, res: Response): Promise<Response> => {
+  const whatsapps = await ListDisconnectedWhatsAppsService();
 
   return res.status(200).json(whatsapps);
 };

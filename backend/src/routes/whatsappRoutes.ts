@@ -9,6 +9,12 @@ whatsappRoutes.get("/whatsapp/", isAuth, WhatsAppController.index);
 
 whatsappRoutes.get("/whatsappgrid/", isAuth, WhatsAppController.indexGrid);
 
+whatsappRoutes.get(
+  "/whatsappdisconnected/",
+  isAuth,
+  WhatsAppController.indexDisconnected
+);
+
 whatsappRoutes.post("/whatsapp/", isAuth, WhatsAppController.store);
 
 whatsappRoutes.get("/whatsapp/:whatsappId", isAuth, WhatsAppController.show);
