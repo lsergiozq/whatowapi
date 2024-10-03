@@ -8,6 +8,7 @@ interface Request {
   idclient: string;
   status?: string;
   description?: string;
+  idapi?: Number;
 }
 
 interface Response {
@@ -18,6 +19,7 @@ const CreateWhatsAppService = async ({
   idclient,
   status = "OPENING",
   description,
+  idapi
 }: Request): Promise<Response> => {
   const schema = Yup.object().shape({
     idclient: Yup.string()
@@ -48,7 +50,8 @@ const CreateWhatsAppService = async ({
     {
       idclient,
       status,
-      description
+      description,
+      idapi
     }
   );
 

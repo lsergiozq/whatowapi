@@ -15,10 +15,19 @@ interface SessionData {
 
 export const insert = async (req: Request, res: Response): Promise<Response> => {
   const sessionData: SessionData = req.body;
+
+  //verifica se process.env.API_ID possui valor, caso não atribui 1
+  if(!process.env.API_ID){
+    process.env.API_ID = '1';
+  }
+
+  //converte process.env.API_ID para inteiro
+  const apiId = parseInt(process.env.API_ID || '1', 10);
   
   const { whatsapp } = await CreateWhatsAppService({
     idclient: sessionData.idclient,
-    description: sessionData.description
+    description: sessionData.description,
+    idapi: apiId
   });
   
   StartWhatsAppSession(whatsapp);
