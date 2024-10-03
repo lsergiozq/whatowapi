@@ -1,5 +1,6 @@
 import express from "express";
 import isAuth from "../middleware/isAuth";
+import isAuthApi from "../middleware/isAuthApi";
 
 import * as WhatsAppController from "../controllers/WhatsAppController";
 
@@ -10,8 +11,8 @@ whatsappRoutes.get("/whatsapp/", isAuth, WhatsAppController.index);
 whatsappRoutes.get("/whatsappgrid/", isAuth, WhatsAppController.indexGrid);
 
 whatsappRoutes.get(
-  "/whatsappdisconnected/",
-  isAuth,
+  "/whatsappdisconnected/", 
+  isAuthApi,
   WhatsAppController.indexDisconnected
 );
 
