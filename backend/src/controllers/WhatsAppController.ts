@@ -27,12 +27,8 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 export const indexGrid = async (req: Request, res: Response): Promise<Response> => {
   const whatsapps = await ListGridWhatsAppsService();
 
-
-  //converte a lista whatsapps.idclient para uma lista de string com os idclients
-  const idclients = whatsapps.map(whatsapp => whatsapp.idclient);
-
   //retorna a lista de idclients
-  return res.status(200).json(idclients);
+  return res.status(200).json(whatsapps);
 };
 
 export const indexDisconnected = async (req: Request, res: Response): Promise<Response> => {
