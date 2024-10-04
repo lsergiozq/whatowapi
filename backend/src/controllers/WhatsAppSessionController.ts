@@ -8,6 +8,7 @@ import UpdateWhatsAppService from "../services/WhatsappService/UpdateWhatsAppSer
 import DeleteBaileysService from "../services/BaileysServices/DeleteBaileysService";
 import DeleteWhatsAppService from "../services/WhatsappService/DeleteWhatsAppService";
 import GetWhatsAppByIdClient from "../helpers/GetWhatsAppByIdClient";
+import GetBasicWhatsAppByIdClient from "../helpers/GetBasicWhatsAppByIdClient";
 
 const store = async (req: Request, res: Response): Promise<Response> => {
   const { whatsappId } = req.params;
@@ -21,7 +22,7 @@ const store = async (req: Request, res: Response): Promise<Response> => {
 export const show = async (req: Request, res: Response): Promise<Response> => {
   const { whatsappIdClient } = req.params;
 
-  const whatsappClient = await GetWhatsAppByIdClient(whatsappIdClient);
+  const whatsappClient = await GetBasicWhatsAppByIdClient(whatsappIdClient);
 
   return res.status(200).json(whatsappClient);
 };
