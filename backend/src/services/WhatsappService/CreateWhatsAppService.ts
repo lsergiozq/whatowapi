@@ -44,7 +44,7 @@ const CreateWhatsAppService = async ({
     throw new AppError(err.message);
   }
 
-  const whatsappFound = await Whatsapp.findOne();
+  //const whatsappFound = await Whatsapp.findOne();
 
   const whatsapp = await Whatsapp.create(
     {
