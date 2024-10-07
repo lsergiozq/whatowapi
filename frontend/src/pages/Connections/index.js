@@ -311,22 +311,13 @@ const Connections = () => {
 								Descrição
 							</TableCell>
 							<TableCell align="center">
-								Id Cliente
-							</TableCell>
-							<TableCell align="center">
 								ApiId
 							</TableCell>
 							<TableCell align="center">
 								{i18n.t("connections.table.session")}
-							</TableCell>
-							<TableCell align="center">
-								{i18n.t("connections.table.lastUpdate")}
-							</TableCell>
+							</TableCell>					
 							<TableCell align="center">
 								{i18n.t("connections.table.default")}
-							</TableCell>
-							<TableCell align="center">
-								{i18n.t("connections.table.actions")}
 							</TableCell>
 						</TableRow>
 					</TableHead>
@@ -339,27 +330,13 @@ const Connections = () => {
 									whatsApps.map(whatsApp => (
 										<TableRow key={whatsApp.id}>
 											<TableCell align="center">{whatsApp.description}</TableCell>
-											<TableCell align="center">{whatsApp.idclient}</TableCell>
 											<TableCell align="center">{whatsApp.idapi}</TableCell>
 											<TableCell align="center">
 												{renderStatusToolTips(whatsApp)}
 											</TableCell>
 											<TableCell align="center">
-												{renderActionButtons(whatsApp)}
-											</TableCell>
-											<TableCell align="center">
 												{format(parseISO(whatsApp.updatedAt), "dd/MM/yy HH:mm")}
-											</TableCell>
-											<TableCell align="center">
-												<IconButton
-													size="small"
-													onClick={e => {
-														handleOpenConfirmationModal("delete", whatsApp.id);
-													}}
-												>
-													<DeleteOutline />
-												</IconButton>
-											</TableCell>
+											</TableCell>											
 										</TableRow>
 									))}
 							</>
