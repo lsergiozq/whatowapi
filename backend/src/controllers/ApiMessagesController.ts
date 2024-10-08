@@ -33,22 +33,22 @@ interface SessionData {
   key: string;
 }
 
-// Função para verificar se o Redis está pronto
-const checkRedisReady = async (queue: Queue.Queue): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const check = () => {
-      queue.client.ping((err, result) => {
-        if (err) {
-          reject(err);
-        } else if (result === 'PONG') {
-          resolve();
-        } else {
-          setTimeout(check, 1000); // Tenta novamente após 1 segundo
-        }
-      });
-    };
-    check();
-  });
+// Função para verificar se o Redis está pronto com lógica de repetição
+const checkRedisReady = async (queue: Queue.Queue, retries = 5, delay = 1000): Promise<void> => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const result = await queue.client.ping();
+      if (result === 'PONG') {
+        return;
+      }
+    } catch (err) {
+      if (i === retries - 1) {
+        throw err;
+      }
+    }
+    await new Promise(resolve => setTimeout(resolve, delay));
+  }
+  throw new Error('Redis is not ready');
 };
 
 // Definir o processador da fila
