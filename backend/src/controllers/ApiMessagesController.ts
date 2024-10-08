@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import * as Yup from "yup";
 import AppError from "../errors/AppError";
-import { getIO } from "../libs/socket";
+import { getIO } from "../libs/socket"
 import SendMessage from "../helpers/SendMessage";
 import GetWhatsAppByName from "../helpers/GetWhatsAppByIdClient";
 import { StartWhatsAppSession } from "../services/WbotServices/StartWhatsAppSession";
@@ -10,18 +10,9 @@ import DeleteWhatsAppService from "../services/WhatsappService/DeleteWhatsAppSer
 import SendWhatsAppMedia from "../helpers/SendWhatsAppMedia";
 import * as fs from 'fs/promises'; // Certifique-se de usar a versão do fs que suporta Promises
 import Queue from 'bull';
-import Redis from 'ioredis'; // Use ioredis para verificação do status
 
-// Configuração da fila com estratégia de reconexão
 const messageQueue = new Queue(`messageQueue${process.env.API_ID}`, {
-  redis: {
-    host: '127.0.0.1',
-    port: 6379,
-    retryStrategy: function (times) {
-      // Aguarda 5 segundos antes de tentar novamente
-      return Math.min(times * 50, 5000);
-    }
-  }
+  redis: { host: '127.0.0.1', port: 6379 },
 });
 
 type WhatsappData = {
@@ -38,50 +29,39 @@ interface ContactData {
   number: string
 }
 
-// Função para verificar e tentar novamente em caso de erro de "LOADING"
-const processWithRetry = async (operation, maxRetries = 10, retryInterval = 5000) => {
-  let retries = 0;
+interface SessionData {
+  key: string;
+}
 
-  while (retries < maxRetries) {
-    try {
-      return await operation(); // Tenta executar a operação
-    } catch (error) {
-      if (error.message.includes("LOADING Redis is loading the dataset")) {
-        retries++;
-        console.log(`Redis ainda está carregando... aguardando (${retries}/${maxRetries})`);
-        await new Promise(resolve => setTimeout(resolve, retryInterval)); // Aguarda antes de tentar novamente
-      } else {
-        throw error; // Outros erros são lançados imediatamente
-      }
-    }
-  }
-
-  throw new Error("Redis não ficou pronto após várias tentativas.");
+// Função para verificar se o Redis está pronto
+const checkRedisReady = async (queue: Queue.Queue): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const check = () => {
+      queue.client.ping((err, result) => {
+        if (err) {
+          reject(err);
+        } else if (result === 'PONG') {
+          resolve();
+        } else {
+          setTimeout(check, 1000); // Tenta novamente após 1 segundo
+        }
+      });
+    };
+    check();
+  });
 };
 
-// Lidar com erro de conexão com o Redis
-messageQueue.on('error', (error) => {
-  console.error('Erro de conexão com o Redis:', error);
-});
-
-// Tratamento para jobs travados
-messageQueue.on('stalled', (job) => {
-  console.error(`Job ${job.id} travou e foi reiniciado.`);
-});
-
-// Definir o processador da fila com tratamento de erros
+// Definir o processador da fila
 messageQueue.process(async (job, done) => {
   const { whatsapp, number, body, media } = job.data;
-
+  
   try {
-    await processWithRetry(async () => {
-      if (media) {
-        await SendWhatsAppMedia({ whatsapp, media, body, number });
-        await fs.unlink(media.path);
-      } else {
-        await SendMessage(whatsapp, { number, body });
-      }
-    });
+    if (media) {
+      await SendWhatsAppMedia({ whatsapp, media, body, number });
+      await fs.unlink(media.path);
+    } else {
+      await SendMessage(whatsapp, { number, body });
+    }
     done();
   } catch (error) {
     console.error('Erro ao enviar mensagem:', error);
@@ -96,38 +76,28 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
   newContact.number = newContact.number.replace("-", "").replace(" ", "");
 
-  try {
-    const whatsapp = await GetWhatsAppByName(newContact.idclient);
+  const whatsapp = await GetWhatsAppByName(newContact.idclient);
 
-    // Adiciona as mensagens na fila com tratamento de promessas e re-tentativa
-    if (medias && medias.length > 0) {
-      medias.forEach((media: Express.Multer.File) => {
-        processWithRetry(() => {
-          return messageQueue.add({
-            whatsapp,
-            number: newContact.number,
-            body: messageData.body,
-            media,
-          });
-        }).catch((error) => {
-          console.error('Erro ao adicionar mídia à fila:', error);
-        });
-      });
-    } else {
-      await processWithRetry(() => {
-        return messageQueue.add({
-          whatsapp,
-          number: newContact.number,
-          body: messageData.body,
-        });
-      }).catch((error) => {
-        console.error('Erro ao adicionar mensagem à fila:', error);
-      });
-    }
+  // Verifica se o Redis está pronto antes de adicionar trabalhos à fila
+  await checkRedisReady(messageQueue);
 
-    return res.send();
-  } catch (error) {
-    console.error('Erro ao processar a solicitação:', error);
-    return res.status(500).json({ message: "Erro ao processar a solicitação." });
+  // Adiciona as mensagens na fila
+  if (medias && medias.length > 0) {
+    medias.forEach((media: Express.Multer.File) => {
+      messageQueue.add({
+        whatsapp,
+        number: newContact.number,
+        body: messageData.body,
+        media,
+      });
+    });
+  } else {
+    messageQueue.add({
+      whatsapp,
+      number: newContact.number,
+      body: messageData.body,
+    });
   }
+
+  return res.send();
 };
