@@ -24,6 +24,20 @@ const messageQueue = new Queue(`messageQueue${process.env.API_ID}`, {
   }
 });
 
+type WhatsappData = {
+  whatsappId: number;
+};
+
+type MessageData = {
+  body: string;
+  fromMe: boolean;
+};
+
+interface ContactData {
+  idclient: string,
+  number: string
+}
+
 // Verificação do estado do Redis
 const redisClient = new Redis(); // Conectar ao Redis para verificar seu status
 
