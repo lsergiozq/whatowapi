@@ -70,34 +70,39 @@ messageQueue.process(async (job, done) => {
 });
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
-  const newContact: ContactData = req.body;
-  const messageData: MessageData = req.body;
-  const medias = req.files as Express.Multer.File[];
+  try {
+    const newContact: ContactData = req.body;
+    const messageData: MessageData = req.body;
+    const medias = req.files as Express.Multer.File[];
 
-  newContact.number = newContact.number.replace("-", "").replace(" ", "");
+    newContact.number = newContact.number.replace("-", "").replace(" ", "");
 
-  const whatsapp = await GetWhatsAppByName(newContact.idclient);
+    const whatsapp = await GetWhatsAppByName(newContact.idclient);
 
-  // Verifica se o Redis está pronto antes de adicionar trabalhos à fila
-  await checkRedisReady(messageQueue);
+    // Verifica se o Redis está pronto antes de adicionar trabalhos à fila
+    await checkRedisReady(messageQueue);
 
-  // Adiciona as mensagens na fila
-  if (medias && medias.length > 0) {
-    for (const media of medias) {
+    // Adiciona as mensagens na fila
+    if (medias && medias.length > 0) {
+      for (const media of medias) {
+        await messageQueue.add({
+          whatsapp,
+          number: newContact.number,
+          body: messageData.body,
+          media,
+        });
+      }
+    } else {
       await messageQueue.add({
         whatsapp,
         number: newContact.number,
         body: messageData.body,
-        media,
       });
     }
-  } else {
-    await messageQueue.add({
-      whatsapp,
-      number: newContact.number,
-      body: messageData.body,
-    });
-  }
 
-  return res.send();
+    return res.send();
+  } catch (error) {
+    console.error('Erro ao processar a requisição:', error);
+    return res.status(500).send('Erro ao processar a requisição');
+  }
 };
