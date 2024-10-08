@@ -83,16 +83,16 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
   // Adiciona as mensagens na fila
   if (medias && medias.length > 0) {
-    medias.forEach((media: Express.Multer.File) => {
-      messageQueue.add({
+    for (const media of medias) {
+      await messageQueue.add({
         whatsapp,
         number: newContact.number,
         body: messageData.body,
         media,
       });
-    });
+    }
   } else {
-    messageQueue.add({
+    await messageQueue.add({
       whatsapp,
       number: newContact.number,
       body: messageData.body,
