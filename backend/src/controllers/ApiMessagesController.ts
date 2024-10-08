@@ -41,15 +41,29 @@ interface ContactData {
 // Verificação do estado do Redis
 const redisClient = new Redis(); // Conectar ao Redis para verificar seu status
 
-const checkRedisReady = async (): Promise<void> => {
-  try {
-    const info = await redisClient.info();
-    if (info.includes("loading:1")) {
-      throw new Error("Redis is still loading the dataset into memory.");
+const checkRedisReady = async (maxRetries = 10, retryInterval = 5000): Promise<void> => {
+  let retries = 0;
+  let isReady = false;
+
+  while (!isReady && retries < maxRetries) {
+    try {
+      const info = await redisClient.info();
+      if (info.includes("loading:1")) {
+        console.log(`Redis ainda está carregando... aguardando (${retries + 1}/${maxRetries})`);
+        // Aguarda o intervalo definido antes de tentar novamente
+        await new Promise((resolve) => setTimeout(resolve, retryInterval));
+        retries++;
+      } else {
+        isReady = true; // Redis está pronto
+      }
+    } catch (error) {
+      console.error("Erro ao verificar o status do Redis:", error);
+      throw error;
     }
-  } catch (error) {
-    console.error('Erro ao verificar o status do Redis:', error);
-    throw error;
+  }
+
+  if (!isReady) {
+    throw new Error("Redis não ficou pronto após várias tentativas.");
   }
 };
 
