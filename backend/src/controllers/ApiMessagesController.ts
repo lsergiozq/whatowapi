@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import * as Yup from "yup";
 import AppError from "../errors/AppError";
-import { getIO } from "../libs/socket"
+import { getIO } from "../libs/socket";
 import SendMessage from "../helpers/SendMessage";
 import GetWhatsAppByName from "../helpers/GetWhatsAppByIdClient";
 import { StartWhatsAppSession } from "../services/WbotServices/StartWhatsAppSession";
@@ -11,32 +11,32 @@ import SendWhatsAppMedia from "../helpers/SendWhatsAppMedia";
 import * as fs from 'fs/promises'; // Certifique-se de usar a versão do fs que suporta Promises
 import Queue from 'bull';
 
+// Configuração da fila com estratégia de reconexão
 const messageQueue = new Queue(`messageQueue${process.env.API_ID}`, {
-  redis: { host: '127.0.0.1', port: 6379 },
+  redis: {
+    host: '127.0.0.1',
+    port: 6379,
+    retryStrategy: function (times) {
+      // Aguarda 5 segundos antes de tentar novamente
+      return Math.min(times * 50, 5000);
+    }
+  }
 });
 
-type WhatsappData = {
-  whatsappId: number;
-};
+// Lidar com erro de conexão com o Redis
+messageQueue.on('error', (error) => {
+  console.error('Erro de conexão com o Redis:', error);
+});
 
-type MessageData = {
-  body: string;
-  fromMe: boolean;
-};
+// Tratamento para jobs travados
+messageQueue.on('stalled', (job) => {
+  console.error(`Job ${job.id} travou e foi reiniciado.`);
+});
 
-interface ContactData {
-  idclient: string,
-  number: string
-}
-
-interface SessionData {
-  key: string;
-}
-
-// Definir o processador da fila
+// Definir o processador da fila com tratamento de erros
 messageQueue.process(async (job, done) => {
   const { whatsapp, number, body, media } = job.data;
-  
+
   try {
     if (media) {
       await SendWhatsAppMedia({ whatsapp, media, body, number });
@@ -58,30 +58,34 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
   newContact.number = newContact.number.replace("-", "").replace(" ", "");
 
-  const whatsapp = await GetWhatsAppByName(newContact.idclient);
+  try {
+    const whatsapp = await GetWhatsAppByName(newContact.idclient);
 
-  // Adiciona as mensagens na fila
-  if (medias && medias.length > 0) {
-    medias.forEach((media: Express.Multer.File) => {
-      messageQueue.add({
+    // Adiciona as mensagens na fila com tratamento de promessas
+    if (medias && medias.length > 0) {
+      medias.forEach((media: Express.Multer.File) => {
+        messageQueue.add({
+          whatsapp,
+          number: newContact.number,
+          body: messageData.body,
+          media,
+        }).catch((error) => {
+          console.error('Erro ao adicionar mídia à fila:', error);
+        });
+      });
+    } else {
+      await messageQueue.add({
         whatsapp,
         number: newContact.number,
         body: messageData.body,
-        media,
+      }).catch((error) => {
+        console.error('Erro ao adicionar mensagem à fila:', error);
       });
-    });
-  } else {
-    messageQueue.add({
-      whatsapp,
-      number: newContact.number,
-      body: messageData.body,
-    });
+    }
+
+    return res.send();
+  } catch (error) {
+    console.error('Erro ao processar a solicitação:', error);
+    return res.status(500).json({ message: "Erro ao processar a solicitação." });
   }
-
-  return res.send();
 };
-
-
-
-
-
