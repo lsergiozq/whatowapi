@@ -38,33 +38,25 @@ interface ContactData {
   number: string
 }
 
-// Verificação do estado do Redis
-const redisClient = new Redis(); // Conectar ao Redis para verificar seu status
-
-const checkRedisReady = async (maxRetries = 10, retryInterval = 5000): Promise<void> => {
+// Função para verificar e tentar novamente em caso de erro de "LOADING"
+const processWithRetry = async (operation, maxRetries = 10, retryInterval = 5000) => {
   let retries = 0;
-  let isReady = false;
 
-  while (!isReady && retries < maxRetries) {
+  while (retries < maxRetries) {
     try {
-      const info = await redisClient.info();
-      if (info.includes("loading:1")) {
-        console.log(`Redis ainda está carregando... aguardando (${retries + 1}/${maxRetries})`);
-        // Aguarda o intervalo definido antes de tentar novamente
-        await new Promise((resolve) => setTimeout(resolve, retryInterval));
-        retries++;
-      } else {
-        isReady = true; // Redis está pronto
-      }
+      return await operation(); // Tenta executar a operação
     } catch (error) {
-      console.error("Erro ao verificar o status do Redis:", error);
-      throw error;
+      if (error.message.includes("LOADING Redis is loading the dataset")) {
+        retries++;
+        console.log(`Redis ainda está carregando... aguardando (${retries}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, retryInterval)); // Aguarda antes de tentar novamente
+      } else {
+        throw error; // Outros erros são lançados imediatamente
+      }
     }
   }
 
-  if (!isReady) {
-    throw new Error("Redis não ficou pronto após várias tentativas.");
-  }
+  throw new Error("Redis não ficou pronto após várias tentativas.");
 };
 
 // Lidar com erro de conexão com o Redis
@@ -79,16 +71,17 @@ messageQueue.on('stalled', (job) => {
 
 // Definir o processador da fila com tratamento de erros
 messageQueue.process(async (job, done) => {
-  try {
-    await checkRedisReady(); // Verifique se o Redis está pronto antes de processar
-    const { whatsapp, number, body, media } = job.data;
+  const { whatsapp, number, body, media } = job.data;
 
-    if (media) {
-      await SendWhatsAppMedia({ whatsapp, media, body, number });
-      await fs.unlink(media.path);
-    } else {
-      await SendMessage(whatsapp, { number, body });
-    }
+  try {
+    await processWithRetry(async () => {
+      if (media) {
+        await SendWhatsAppMedia({ whatsapp, media, body, number });
+        await fs.unlink(media.path);
+      } else {
+        await SendMessage(whatsapp, { number, body });
+      }
+    });
     done();
   } catch (error) {
     console.error('Erro ao enviar mensagem:', error);
@@ -104,27 +97,29 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
   newContact.number = newContact.number.replace("-", "").replace(" ", "");
 
   try {
-    await checkRedisReady(); // Verifique se o Redis está pronto antes de adicionar à fila
-
     const whatsapp = await GetWhatsAppByName(newContact.idclient);
 
-    // Adiciona as mensagens na fila com tratamento de promessas
+    // Adiciona as mensagens na fila com tratamento de promessas e re-tentativa
     if (medias && medias.length > 0) {
       medias.forEach((media: Express.Multer.File) => {
-        messageQueue.add({
-          whatsapp,
-          number: newContact.number,
-          body: messageData.body,
-          media,
+        processWithRetry(() => {
+          return messageQueue.add({
+            whatsapp,
+            number: newContact.number,
+            body: messageData.body,
+            media,
+          });
         }).catch((error) => {
           console.error('Erro ao adicionar mídia à fila:', error);
         });
       });
     } else {
-      await messageQueue.add({
-        whatsapp,
-        number: newContact.number,
-        body: messageData.body,
+      await processWithRetry(() => {
+        return messageQueue.add({
+          whatsapp,
+          number: newContact.number,
+          body: messageData.body,
+        });
       }).catch((error) => {
         console.error('Erro ao adicionar mensagem à fila:', error);
       });
