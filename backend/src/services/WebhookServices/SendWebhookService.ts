@@ -8,8 +8,6 @@ class WebhookService {
       
     // Converte o payload para o formato x-www-form-urlencoded
     const data = qs.stringify(payload);
-    console.log("data", data);
-
     try {
       console.log("Enviando para o webhook:" + webhookUrl, payload);
       await axios.post(webhookUrl, data, {
