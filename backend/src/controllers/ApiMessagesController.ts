@@ -18,10 +18,9 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
     await messageQueue.add(
         { newContact, messageData, medias },
         {
-          attempts: 3, // Tenta 3 vezes em caso de falha
-          backoff: 5000, // Espera 5 segundos entre as tentativas
-          // removeOnComplete: true, // Remove o job ao completar
-          // removeOnFail: true // Remove o job ao falhar
+          removeOnComplete: true,
+          removeOnFail: true,
+          timeout: 60000 // 60 segundos para processar o job
         }
     );
 
