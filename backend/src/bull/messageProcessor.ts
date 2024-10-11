@@ -33,8 +33,8 @@ messageQueue.process(5, async (job) => {
       message: messageData
     });
 
-    console.log("removendo job sucesso");
-    // Remover o job manualmente
+    // console.log("removendo job sucesso");
+    // // Remover o job manualmente
     await job.remove(); // Remover job manualmente ao final do processamento
 
     return Promise.resolve();
