@@ -3,12 +3,9 @@ import qs from "qs";  // Importa a biblioteca qs para formatar os dados como x-w
 
 class WebhookService {
   public async send(payload: any, retryCount = 0): Promise<void> {
-    const webhookUrl = process.env.WEBHOOK_URL || "http://example.com/webhook";
+    const webhookUrl = process.env.WEBHOOK_URL || "https://api.owcloud.com.br/api/v1/Webhooks/WhatsApp";
     const maxRetries = 3;
       
-    //temporário
-    payload = { TID: 'payload.message.body', NSU: 'payload.message.number' };
-
     // Converte o payload para o formato x-www-form-urlencoded
     const data = qs.stringify(payload);
     console.log("data", data);
