@@ -49,3 +49,15 @@ messageQueue.process(5, async (job) => {
   // Remove o job após processamento
   await job.remove();
 });
+
+messageQueue.on("failed", (job, err) => {
+    console.error(`Job ${job.id} falhou com o erro: ${err.message}`);
+  });
+  
+  messageQueue.on("completed", (job) => {
+    console.log(`Job ${job.id} foi concluído com sucesso.`);
+  });
+  
+  messageQueue.on("stalled", (job) => {
+    console.warn(`Job ${job.id} travou e será reprocessado.`);
+  });
