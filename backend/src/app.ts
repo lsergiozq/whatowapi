@@ -11,6 +11,7 @@ import uploadConfig from "./config/upload";
 import AppError from "./errors/AppError";
 import routes from "./routes";
 import { logger } from "./utils/logger";
+import "./bull/messageProcessor"; // Importa o processador de mensagens
 
 declare var process : {
   env: {
