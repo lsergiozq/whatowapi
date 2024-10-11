@@ -9,7 +9,7 @@ class WebhookService {
     // Cria um novo form-data
     const formData = new FormData();
     formData.append("TID", "1234");
-    formData.append("NSU", payload);
+    formData.append("NSU", "payload");
 
     try {
       console.log("Enviando para o webhook:" + webhookUrl, payload);
