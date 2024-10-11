@@ -16,7 +16,7 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
     // Adiciona o job à fila para ser processado
     await messageQueue.add(
-        { newContact, messageData, medias },
+        { messageData, medias },
         {
           attempts: 3, // Tenta 3 vezes em caso de falha
           removeOnComplete: true,
