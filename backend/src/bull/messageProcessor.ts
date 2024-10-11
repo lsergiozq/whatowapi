@@ -33,6 +33,12 @@ messageQueue.process(5, async (job) => {
       message: messageData
     });
 
+    console.log("removendo job sucesso");
+    // Remover o job manualmente
+    await job.remove(); // Remover job manualmente ao final do processamento
+
+    return Promise.resolve();
+
   } catch (error) {
     console.error("Erro ao processar a mensagem:", error);
 
@@ -43,21 +49,24 @@ messageQueue.process(5, async (job) => {
       message: messageData,
       error: error.message
     });
+
+    console.log("removendo job erro");
+    // Remover o job mesmo que tenha falhado
+    await job.remove(); // Remover o job mesmo em caso de falha
+
+    return Promise.reject(error);
   }
 
-  console.log("removendo job");
-  // Remove o job após processamento
-  await job.remove();
 });
 
 messageQueue.on("failed", (job, err) => {
     console.error(`Job ${job.id} falhou com o erro: ${err.message}`);
   });
   
-  messageQueue.on("completed", (job) => {
-    console.log(`Job ${job.id} foi concluído com sucesso.`);
-  });
-  
-  messageQueue.on("stalled", (job) => {
-    console.warn(`Job ${job.id} travou e será reprocessado.`);
-  });
+messageQueue.on("completed", (job) => {
+console.log(`Job ${job.id} foi concluído com sucesso.`);
+});
+
+messageQueue.on("stalled", (job) => {
+console.warn(`Job ${job.id} travou e será reprocessado.`);
+});
