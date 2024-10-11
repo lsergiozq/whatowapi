@@ -27,8 +27,7 @@ const wbotMonitor = async (
   whatsapp: Whatsapp
 ): Promise<void> => {
   try {
-    wbot.ev.on("contacts.upsert", async (contacts: BContact[]) => {
-      console.log("upsert", contacts);
+    wbot.ev.on("contacts.upsert", async (contacts: BContact[]) => {      
       await createOrUpdateBaileysService({
         whatsappId: whatsapp.id,
         contacts
