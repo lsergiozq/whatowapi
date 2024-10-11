@@ -45,6 +45,7 @@ messageQueue.process(5, async (job) => {
     });
   }
 
+  console.log("removendo job");
   // Remove o job após processamento
   await job.remove();
 });
