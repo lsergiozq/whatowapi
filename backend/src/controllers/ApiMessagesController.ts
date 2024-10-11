@@ -1,37 +1,11 @@
 import { Request, Response } from "express";
-import * as Yup from "yup";
-import AppError from "../errors/AppError";
-import { getIO } from "../libs/socket";
-import SendMessage from "../helpers/SendMessage";
-import GetWhatsAppByName from "../helpers/GetWhatsAppByIdClient";
-import { StartWhatsAppSession } from "../services/WbotServices/StartWhatsAppSession";
-import CreateWhatsAppService from "../services/WhatsappService/CreateWhatsAppService";
-import DeleteWhatsAppService from "../services/WhatsappService/DeleteWhatsAppService";
-import SendWhatsAppMedia from "../helpers/SendWhatsAppMedia";
-import * as fs from 'fs/promises'; // Certifique-se de usar a versão do fs que suporta Promises
-
-type WhatsappData = {
-  whatsappId: number;
-};
-
-type MessageData = {
-  body: string;
-  fromMe: boolean;
-};
-
-interface ContactData {
-  idclient: string;
-  number: string;
-}
-
-interface SessionData {
-  key: string;
-}
+import messageQueue from "../bull/messageQueue"; // Fila de mensagens
+import * as fs from "fs/promises";
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
   try {
-    const newContact: ContactData = req.body;
-    const messageData: MessageData = req.body;
+    const newContact = req.body;
+    const messageData = req.body;
     const medias = req.files as Express.Multer.File[];
 
     if (!newContact.number) {
@@ -40,21 +14,20 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
     newContact.number = newContact.number.replace("-", "").replace(" ", "");
 
-    const whatsapp = await GetWhatsAppByName(newContact.idclient);
-
-    // Envia as mensagens diretamente
-    if (medias && medias.length > 0) {
-      for (const media of medias) {
-        await SendWhatsAppMedia({ whatsapp, media, body: messageData.body, number: newContact.number });
-        await fs.unlink(media.path);
+    // Adiciona o job à fila para ser processado
+    await messageQueue.add(
+      { newContact, messageData, medias },
+      {
+        attempts: 3, // Tenta 3 vezes em caso de falha
+        backoff: 5000, // Espera 5 segundos entre as tentativas
+        removeOnComplete: true, // Remove o job ao completar
+        removeOnFail: true // Remove o job ao falhar
       }
-    } else {
-      await SendMessage(whatsapp, { number: newContact.number, body: messageData.body });
-    }
+    );
 
-    return res.send();
+    return res.status(200).json({ message: "Mensagem adicionada à fila para processamento" });
   } catch (error) {
-    console.error('Erro ao processar a requisição:', error);
-    return res.status(500).send('Erro ao processar a requisição');
+      console.error("Erro ao adicionar job à fila:", error);
+    return res.status(500).json({ message: "Erro ao processar requisição" });
   }
 };
