@@ -12,16 +12,20 @@ messageQueue.process(5, async (job) => {
   try {
     const whatsapp = await GetWhatsAppByName(newContact.idclient);
 
+    console.log("Enviando mensagem para:", newContact.number);
     // Envia a mensagem (texto ou mídia)
     if (medias && medias.length > 0) {
       for (const media of medias) {
+        console.log("medias");
         await SendWhatsAppMedia({ whatsapp, media, body: messageData.body, number: newContact.number });
         await fs.unlink(media.path); // Remove arquivo após envio
       }
     } else {
+        console.log("texto");
       await SendMessage(whatsapp, { number: newContact.number, body: messageData.body });
     }
-
+    console.log("sucesso");
+    
     // Notifica o webhook com sucesso
     await WebhookService.send({
       status: "success",

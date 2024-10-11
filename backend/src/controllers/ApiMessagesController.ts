@@ -16,13 +16,13 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
     // Adiciona o job à fila para ser processado
     await messageQueue.add(
-      { newContact, messageData, medias },
-      {
-        attempts: 3, // Tenta 3 vezes em caso de falha
-        backoff: 5000, // Espera 5 segundos entre as tentativas
-        removeOnComplete: true, // Remove o job ao completar
-        removeOnFail: true // Remove o job ao falhar
-      }
+        { newContact, messageData, medias },
+        {
+          attempts: 3, // Tenta 3 vezes em caso de falha
+          backoff: 5000, // Espera 5 segundos entre as tentativas
+          removeOnComplete: true, // Remove o job ao completar
+          removeOnFail: true // Remove o job ao falhar
+        }
     );
 
     return res.status(200).json({ message: "Mensagem adicionada à fila para processamento" });

@@ -5,7 +5,14 @@ class WebhookService {
     const webhookUrl = process.env.WEBHOOK_URL || "http://example.com/webhook";
     const maxRetries = 3;
 
+    payload = {
+        authorizationId: "abc123def456",
+        referenceId: "ref789ghi012"
+    };
+      
+
     try {
+      console.log("Enviando para o webhook:" + webhookUrl, payload);
       await axios.post(webhookUrl, payload);
     } catch (error) {
       console.error(`Erro ao enviar para o webhook: ${error.message}`);
