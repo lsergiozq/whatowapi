@@ -7,10 +7,11 @@ class WebhookService {
     const maxRetries = 3;
       
     //temporário
-    payload = { TID: payload.message.body, NSU: payload.message.number };
+    payload = { TID: 'payload.message.body', NSU: 'payload.message.number' };
 
     // Converte o payload para o formato x-www-form-urlencoded
     const data = qs.stringify(payload);
+    console.log("data", data);
 
     try {
       console.log("Enviando para o webhook:" + webhookUrl, payload);
