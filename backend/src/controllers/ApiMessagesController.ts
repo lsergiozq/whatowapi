@@ -17,28 +17,28 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
     //Verifica a prioridade que vem junto da mensagem - messageData.priority
     //messageData.priority é string e precisa converter para number numa nova variável ou constante
     //e se a priotity não existir, o valor padrão é 1
-    
+
     let priority = 1;
     if (messageData.priority) {
       priority = parseInt(messageData.priority)
     }
-    
+
 
     // Adiciona o job à fila para ser processado
     await messageQueue.add(
-        { messageData, medias },
-        {
-          attempts: 3, // Tenta 3 vezes em caso de falha
-          removeOnComplete: true, //Remove da fila após processar
-          removeOnFail: true, //Remove da fila em caso de falha
-          timeout: 60000, // 60 segundos para processar o job,
-          priority: priority // Prioridade do job
-        }
+      { messageData, medias },
+      {
+        attempts: 3, // Tenta 3 vezes em caso de falha
+        removeOnComplete: true, //Remove da fila após processar
+        removeOnFail: true, //Remove da fila em caso de falha
+        timeout: 60000, // 60 segundos para processar o job,
+        priority: priority // Prioridade do job
+      }
     );
 
     return res.status(200).json({ message: "Mensagem adicionada à fila para processamento" });
   } catch (error) {
-      console.error("Erro ao adicionar job à fila:", error);
+    console.error("Erro ao adicionar job à fila:", error);
     return res.status(500).json({ message: "Erro ao processar requisição" });
   }
 };
