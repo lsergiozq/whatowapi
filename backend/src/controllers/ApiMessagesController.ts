@@ -14,14 +14,25 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
     newContact.number = newContact.number.replace("-", "").replace(" ", "");
 
+    //Verifica a prioridade que vem junto da mensagem - messageData.priority
+    //messageData.priority é string e precisa converter para number numa nova variável ou constante
+    //e se a priotity não existir, o valor padrão é 1
+    
+    let priority = 1;
+    if (messageData.priority) {
+      priority = parseInt(messageData.priority)
+    }
+    
+
     // Adiciona o job à fila para ser processado
     await messageQueue.add(
         { messageData, medias },
         {
           attempts: 3, // Tenta 3 vezes em caso de falha
-          removeOnComplete: true,
-          removeOnFail: true,
-          timeout: 60000 // 60 segundos para processar o job
+          removeOnComplete: true, //Remove da fila após processar
+          removeOnFail: true, //Remove da fila em caso de falha
+          timeout: 60000, // 60 segundos para processar o job,
+          priority: priority // Prioridade do job
         }
     );
 
