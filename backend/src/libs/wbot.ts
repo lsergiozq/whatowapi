@@ -89,6 +89,7 @@
                     browser: ["OWNet", "Chrome", "100"],
                     auth: state as AuthenticationState,
                     generateHighQualityLinkPreview: true,
+                    keepAliveIntervalMs: 60_000,
                     version,
               patchMessageBeforeSending: (message) => {
                       const requiresPatch = !!(
