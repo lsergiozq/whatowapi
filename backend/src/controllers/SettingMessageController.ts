@@ -39,7 +39,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   } = req.body;
 
   try {
-    console.log(req.body);
+    //console.log(req.body);
     const chatbot = await CreateSettingService({
       contact,
       limit,

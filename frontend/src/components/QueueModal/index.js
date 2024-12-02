@@ -142,8 +142,8 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
   }, [queueId, open]);
 
   useEffect(() => {
-    console.log(activeStep);
-    console.log(isNameEdit);
+    //console.log(activeStep);
+    //console.log(isNameEdit);
 
     if (activeStep === isNameEdit) {
       setIsStepContent(false);
@@ -180,7 +180,7 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
 
   const handleSaveQueue = async (values) => {
     try {
-      console.log(queueId);
+      //console.log(queueId);
       if (queueId) {
         await api.put(`/queue/${queueId}`, values);
       } else {

@@ -13,9 +13,13 @@ module.exports = {
   password: process.env.DB_PASS,
   logging: false,
   pool: {
-    max: 15,        // Aumentar número máximo de conexões
+    max: 300,        // Aumentar número máximo de conexões
     min: 0,
-    acquire: 60000, // Aumentar o tempo de aquisição para 1 minuto
+    acquire: 120000, // Aumentar o tempo de aquisição para 2 minuto
     idle: 30000     // Aumentar tempo ocioso para 30 segundos
+  },
+  dialectOptions: {
+      connectTimeout: 60000 // Timeout de conexão: 60 segundos
   }
 };
+

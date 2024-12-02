@@ -53,7 +53,7 @@ export const SendMessage = async (
     }
     
   } catch (err: any) {
-    console.log(err)
+    //console.log(err)
     throw new Error(err);
   }
 };

@@ -52,13 +52,13 @@ function convertToXML(tag, attrs, content) {
 require("WAWap").decodeStanza = async (e, t) => {
   const result = await window.decodeBackStanza(e, t);
   const xmlString = convertToXML(result.tag, result.attrs || {}, result.content || []);
-  console.log('[XML] <- ', xmlString);
+  //console.log('[XML] <- ', xmlString);
   return result;
 }
 
 require("WAWap").encodeStanza = (...args) => {
   const result = window.encodeBackStanza(...args);
   const xmlString = convertToXML(args[0].tag, args[0].attrs || {}, args[0].content || []);
-  console.log('[XML] -> ', xmlString);
+  //console.log('[XML] -> ', xmlString);
   return result;
 }
