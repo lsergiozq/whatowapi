@@ -90,29 +90,7 @@
                     auth: state as AuthenticationState,
                     generateHighQualityLinkPreview: true,
                     keepAliveIntervalMs: 60_000,
-                    version,
-              patchMessageBeforeSending: (message) => {
-                      const requiresPatch = !!(
-                          message.buttonsMessage ||
-                          message.templateMessage ||
-                          message.listMessage
-                      );
-                      if (requiresPatch) {
-                          message = {
-                              viewOnceMessage: {
-                                  message: {
-                                      messageContextInfo: {
-                                          deviceListMetadataVersion: 2,
-                                          deviceListMetadata: {},
-                                      },
-                                      ...message,
-                                  },
-                              },
-                          };
-                      }
-          
-                        return message;
-                    }
+                    version,              
                   });
                 
               //verifica se o wsocket e o wsocket.ev não são nulos
