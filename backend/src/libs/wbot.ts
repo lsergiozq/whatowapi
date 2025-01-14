@@ -110,7 +110,7 @@
 
                     if (connection === "close") {
                       if (disconect === 403) {
-                        await whatsapp.update({ status: "PENDING", session: "" });
+                        await whatsapp.update({ status: "PENDING", compressedsession: "" });
                         await DeleteBaileysService(whatsapp.id);
                         io.emit("whatsappSession", {
                           action: "update",
@@ -123,7 +123,7 @@
                         removeWbot(id, false);
                         setTimeout(() => StartWhatsAppSession(whatsapp), 2000);
                       } else {
-                        await whatsapp.update({ status: "PENDING", session: "" });
+                        await whatsapp.update({ status: "PENDING", compressedsession: "" });
                         await DeleteBaileysService(whatsapp.id);
 
                         io.emit("whatsappSession", {

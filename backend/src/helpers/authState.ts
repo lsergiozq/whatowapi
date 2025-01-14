@@ -34,16 +34,6 @@ const authState = async (
       const result = JSON.parse(decompressedData, BufferJSON.reviver);
       creds = result.creds;
       keys = result.keys;
-    } else if (whatsapp.session) {
-      // Fallback para a sessão original
-      const result = JSON.parse(whatsapp.session, BufferJSON.reviver);
-      creds = result.creds;
-      keys = result.keys;
-
-      // Migra os dados para o campo compactado
-      const sessionData = JSON.stringify({ creds, keys }, BufferJSON.replacer, 0);
-      const compressedData = compress(sessionData).toString("base64");
-      await whatsapp.update({ compressedsession: compressedData });
     } else {
       // Inicializa novos dados caso nenhuma sessão exista
       creds = initAuthCreds();
