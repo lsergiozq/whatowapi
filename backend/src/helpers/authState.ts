@@ -62,7 +62,7 @@ const authState = async (
       const compressedData = compress(sessionData).toString("base64");
 
       // Salva os dados no campo compactado
-      await whatsapp.update({ compressed_session: compressedData });
+      await whatsapp.update({ compressedsession: compressedData });
     } catch (error) {
       Sentry.captureException(error);
       console.error("Erro ao salvar sessão compactada:", error);

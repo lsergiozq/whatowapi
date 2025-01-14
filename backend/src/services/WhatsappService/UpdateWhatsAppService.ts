@@ -4,6 +4,10 @@ import { Op } from "sequelize";
 import AppError from "../../errors/AppError";
 import Whatsapp from "../../models/Whatsapp";
 import ShowWhatsAppService from "./ShowWhatsAppService";
+import zlib from "zlib";
+
+// Funções para compressão
+const compress = (data: string): Buffer => zlib.gzipSync(data, { level: 6 });
 
 interface WhatsappData {
   idclient?: string;
@@ -30,12 +34,7 @@ const UpdateWhatsAppService = async ({
     status: Yup.string()
   });
 
-  const {
-    idclient,
-    status,
-    session,
-    description,
-  } = whatsappData;
+  const { idclient, status, session, description } = whatsappData;
 
   try {
     await schema.validate({ idclient, status, description });
@@ -45,12 +44,19 @@ const UpdateWhatsAppService = async ({
 
   const whatsapp = await ShowWhatsAppService(whatsappId);
 
-  await whatsapp.update({
+  const updateData: Partial<Whatsapp> = {
     idclient,
     status,
-    session,
-    description    
-  });
+    description
+  };
+
+  // Se o campo `session` for fornecido, migra para `compressed_session`
+  if (session) {
+    const compressedSession = compress(session).toString("base64");
+    updateData.compressedsession = compressedSession;
+  }
+
+  await whatsapp.update(updateData);
 
   return { whatsapp };
 };
