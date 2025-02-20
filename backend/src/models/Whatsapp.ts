@@ -50,6 +50,9 @@ class Whatsapp extends Model<Whatsapp> {
   @Column
   retries: number;
 
+  @Column(DataType.TEXT)
+  imagebase64: string;
+
   @CreatedAt
   createdAt: Date;
 

@@ -2,22 +2,20 @@ import messageQueue from "./messageQueue";
 import SendMessage from "../helpers/SendMessage";
 import GetWhatsAppByName from "../helpers/GetWhatsAppByIdClient";
 import SendWhatsAppMedia from "../helpers/SendWhatsAppMedia";
-import * as fs from "fs/promises";
 import WebhookService from "../services/WebhookServices/SendWebhookService";
 
 // Processa os jobs na fila
 messageQueue.process(5, async (job) => {
-  const { messageData, medias } = job.data;
+  const { messageData, addImage } = job.data;
 
   try {
     const whatsapp = await GetWhatsAppByName(messageData.idclient);
 
     // Envia a mensagem (texto ou mídia)
-    if (medias && medias.length > 0) {
-      for (const media of medias) {
-        await SendWhatsAppMedia({ whatsapp, media, body: messageData.body, number: messageData.number });
-        await fs.unlink(media.path); // Remove arquivo após envio
-      }
+    if (addImage) {
+      //obtem a imagem que está na tabela do whatsapps através do idclient	
+      const imagebase64 = whatsapp.imagebase64;
+      await SendWhatsAppMedia({ whatsapp, imagebase64, body: messageData.body, number: messageData.number });
     } else {
       await SendMessage(whatsapp, { number: messageData.number, body: messageData.body });
     }

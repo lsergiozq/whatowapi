@@ -1,32 +1,35 @@
 import { Request, Response } from "express";
 import * as Yup from "yup";
 import AppError from "../errors/AppError";
-import { getIO } from "../libs/socket"
+import { getIO } from "../libs/socket";
 
 import { removeWbot } from "../libs/wbot";
 import { StartWhatsAppSession } from "../services/WbotServices/StartWhatsAppSession";
 import CreateWhatsAppService from "../services/WhatsappService/CreateWhatsAppService";
+import { UpdateImageWhatsAppService } from "../services/WhatsappService/UpdateWhatsAppService";
 import DeleteWhatsAppService from "../services/WhatsappService/DeleteWhatsAppService";
 
 interface SessionData {
   idclient: string;
   description: string;
+  imagebase64: string;
 }
 
 export const insert = async (req: Request, res: Response): Promise<Response> => {
   const sessionData: SessionData = req.body;
 
-  //verifica se process.env.API_ID possui valor, caso não atribui 1
+  // verifica se process.env.API_ID possui valor, caso não atribui 1
   if(!process.env.API_ID){
     process.env.API_ID = '1';
   }
 
-  //converte process.env.API_ID para inteiro
+  // converte process.env.API_ID para inteiro
   const apiId = parseInt(process.env.API_ID || '1', 10);
   
   const { whatsapp } = await CreateWhatsAppService({
     idclient: sessionData.idclient,
     description: sessionData.description,
+    imagebase64: sessionData.imagebase64,
     idapi: apiId
   });
   
@@ -60,6 +63,25 @@ export const remove = async (req: Request, res: Response): Promise<Response> => 
   // });
 
   return res.status(200).json({ message: "Whatsapp deleted." });
+};
+
+export const update = async (req: Request, res: Response): Promise<Response> => {
+  const sessionData: SessionData = req.body;
+
+  //verifica se process.env.API_ID possui valor, caso não atribui 1
+  if(!process.env.API_ID){
+    process.env.API_ID = '1';
+  }
+
+  //converte process.env.API_ID para inteiro
+  const apiId = parseInt(process.env.API_ID || '1', 10);
+  
+  const { whatsapp } = await UpdateImageWhatsAppService({
+    idclient: sessionData.idclient,
+    imagebase64: sessionData.imagebase64,
+  });
+  
+  return res.status(200).json(whatsapp);
 };
 
 

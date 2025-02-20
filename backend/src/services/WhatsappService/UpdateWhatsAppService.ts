@@ -3,7 +3,7 @@ import { Op } from "sequelize";
 
 import AppError from "../../errors/AppError";
 import Whatsapp from "../../models/Whatsapp";
-import ShowWhatsAppService from "./ShowWhatsAppService";
+import { ShowWhatsAppService, ShowWhatsAppServiceByIdClient } from "./ShowWhatsAppService";
 import zlib from "zlib";
 
 // Funções para compressão
@@ -17,15 +17,17 @@ interface WhatsappData {
 }
 
 interface Request {
-  whatsappData: WhatsappData;
-  whatsappId: string;
+  whatsappData?: WhatsappData;
+  whatsappId?: string;
+  imagebase64?: string;
+  idclient?: string;
 }
 
 interface Response {
   whatsapp: Whatsapp;
 }
 
-const UpdateWhatsAppService = async ({
+export const UpdateWhatsAppService = async ({
   whatsappData,
   whatsappId
 }: Request): Promise<Response> => {
@@ -61,4 +63,23 @@ const UpdateWhatsAppService = async ({
   return { whatsapp };
 };
 
-export default UpdateWhatsAppService;
+export const UpdateImageWhatsAppService = async ({
+  imagebase64,
+  idclient
+}: Request): Promise<Response> => {
+  const schema = Yup.object().shape({
+    idclient: Yup.string().min(2),
+    status: Yup.string()
+  });
+
+  const whatsapp = await ShowWhatsAppServiceByIdClient(idclient);
+
+  const updateData: Partial<Whatsapp> = {
+    imagebase64
+  };
+
+  await whatsapp.update(updateData);
+
+  return { whatsapp };
+};
+

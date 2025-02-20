@@ -7,8 +7,8 @@ import CreateWhatsAppService from "../services/WhatsappService/CreateWhatsAppSer
 import DeleteWhatsAppService from "../services/WhatsappService/DeleteWhatsAppService";
 import ListWhatsAppsService from "../services/WhatsappService/ListWhatsAppsService";
 import ListGridWhatsAppsService from "../services/WhatsappService/ListGridWhatsAppsService";
-import ShowWhatsAppService from "../services/WhatsappService/ShowWhatsAppService";
-import UpdateWhatsAppService from "../services/WhatsappService/UpdateWhatsAppService";
+import { ShowWhatsAppService } from "../services/WhatsappService/ShowWhatsAppService";
+import { UpdateWhatsAppService }  from "../services/WhatsappService/UpdateWhatsAppService";
 import ListDisconnectedWhatsAppsService from "../services/WhatsappService/ListDisconnectedWhatsAppsService";
 import { registrationParams } from "@WhiskeysSockets/baileys/lib/Socket/registration";
 
