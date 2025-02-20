@@ -5,7 +5,7 @@ interface Response {
   key: string;
   value: string;
 }
-const ListSettingByKeyService = async (
+export const ListSettingByKeyService = async (
   value: string
 ): Promise<Response | undefined> => {
   const settings = await Setting.findOne({
@@ -19,4 +19,17 @@ const ListSettingByKeyService = async (
   return { key: settings.key, value: settings.value };
 };
 
-export default ListSettingByKeyService;
+export const TokenIsValid = async (
+  value: string
+): Promise<Response | boolean> => {
+  const settings = await Setting.findOne({
+    where: { key: "userApiToken", value }
+  });
+
+  if (!settings) {
+    return false;
+  }
+
+  return true;
+};
+

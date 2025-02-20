@@ -85,11 +85,14 @@
 
               wsocket = makeWASocket({
                     logger: loggerBaileys,
-                    printQRInTerminal: false,
+                    printQRInTerminal: true,
                     browser: ["OWNet", "Chrome", "100"],
                     auth: state as AuthenticationState,
                     generateHighQualityLinkPreview: true,
-                    keepAliveIntervalMs: 60_000,
+                    defaultQueryTimeoutMs: 60_000,
+                    connectTimeoutMs: 60_000,
+                    keepAliveIntervalMs: 20_000,
+                    markOnlineOnConnect: true,
                     version,              
                   });
                 

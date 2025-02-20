@@ -11,6 +11,11 @@ messageQueue.process(5, async (job) => {
   try {
     const whatsapp = await GetWhatsAppByName(messageData.idclient);
 
+    console.log("whatsapp ", whatsapp);
+    console.log("Enviando mensagem para ", messageData);
+    console.log("addImage: ", addImage);
+
+
     // Envia a mensagem (texto ou mídia)
     if (addImage) {
       //obtem a imagem que está na tabela do whatsapps através do idclient	
@@ -26,6 +31,7 @@ messageQueue.process(5, async (job) => {
       message: messageData
     });
   } catch (error) {
+    console.error("Erro ao processar job:", error); // Log detalhado do erro
     // Notifica o webhook com erro
     await WebhookService.send({
       status: "error",

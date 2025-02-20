@@ -10,6 +10,8 @@ export const sendtext = async (
     const newContact = req.body;
     const messageData = req.body;
 
+    console.log("newContact", newContact);
+
     const addImage = false;
 
     if (!newContact.number) {
@@ -24,7 +26,7 @@ export const sendtext = async (
 
     let priority = 1;
     if (messageData.priority) {
-      priority = parseInt(messageData.priority, 10);
+      priority = parseInt(messageData.priority);
     }
 
     // Adiciona o job à fila para ser processado
@@ -33,20 +35,19 @@ export const sendtext = async (
       {
         attempts: 3, // Tenta 3 vezes em caso de falha
         removeOnComplete: true, // Remove da fila após processar
-        removeOnFail: true, // Remove da fila em caso de falha
+        removeOnFail: false, // Remove da fila em caso de falha
         timeout: 60000, // 60 segundos para processar o job,
-        priority, // Prioridade do job
+        priority: priority, // Prioridade do job
       }
     );
 
-    return res
-      .status(200)
-      .json({ message: "Mensagem adicionada à fila para processamento" });
+    console.log("Mensagem adicionada à fila para processamento");
+
+    return res.status(200).json({ message: "Mensagem adicionada à fila para processamento" });
+
   } catch (error) {
     console.error("Erro ao adicionar job à fila:", error);
-    return res
-      .status(500)
-      .json({ message: "Erro ao processar requisição" });
+    return res.status(500).json({ message: "Erro ao processar requisição" });
   }
 };
 
@@ -71,7 +72,7 @@ export const sendimage = async (
 
     let priority = 1;
     if (messageData.priority) {
-      priority = parseInt(messageData.priority, 10);
+      priority = parseInt(messageData.priority);
     }
 
     // Adiciona o job à fila para ser processado
@@ -82,17 +83,16 @@ export const sendimage = async (
         removeOnComplete: true, // Remove da fila após processar
         removeOnFail: true, // Remove da fila em caso de falha
         timeout: 60000, // 60 segundos para processar o job,
-        priority, // Prioridade do job
+        priority: priority, // Prioridade do job
       }
     );
 
-    return res
-      .status(200)
-      .json({ message: "Mensagem adicionada à fila para processamento" });
+    console.log("Mensagem adicionada à fila para processamento");
+
+    return res.status(200).json({ message: "Mensagem adicionada à fila para processamento" });
+
   } catch (error) {
     console.error("Erro ao adicionar job à fila:", error);
-    return res
-      .status(500)
-      .json({ message: "Erro ao processar requisição" });
+    return res.status(500).json({ message: "Erro ao processar requisição" });
   }
 };
