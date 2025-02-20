@@ -8,6 +8,7 @@ interface Request {
   idclient: string;
   status?: string;
   description?: string;
+  imagebase64?: string;
   idapi?: Number;
 }
 
@@ -19,6 +20,7 @@ const CreateWhatsAppService = async ({
   idclient,
   status = "OPENING",
   description,
+  imagebase64,
   idapi
 }: Request): Promise<Response> => {
   const schema = Yup.object().shape({
@@ -51,6 +53,7 @@ const CreateWhatsAppService = async ({
       idclient,
       status,
       description,
+      imagebase64,
       idapi
     }
   );

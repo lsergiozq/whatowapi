@@ -29,7 +29,7 @@
     "@WhiskeysSockets/baileys": "github:renatoiub/Baileys.git",
     "axios": "^0.26.1",
     "bcryptjs": "^2.4.3",
-    "bull": "^4.8.4",
+    "bull": "^4.16.5",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "date-fns": "^2.16.1",
