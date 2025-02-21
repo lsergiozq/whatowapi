@@ -12,6 +12,9 @@ module.exports = {
       session: {
         type: DataTypes.TEXT
       },
+      imagebase64: {
+        type: DataTypes.TEXT
+      },
       qrcode: {
         type: DataTypes.TEXT
       },
