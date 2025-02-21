@@ -10,7 +10,6 @@ import ListGridWhatsAppsService from "../services/WhatsappService/ListGridWhatsA
 import { ShowWhatsAppService } from "../services/WhatsappService/ShowWhatsAppService";
 import { UpdateWhatsAppService }  from "../services/WhatsappService/UpdateWhatsAppService";
 import ListDisconnectedWhatsAppsService from "../services/WhatsappService/ListDisconnectedWhatsAppsService";
-import { registrationParams } from "@WhiskeysSockets/baileys/lib/Socket/registration";
 
 interface WhatsappData {
   idclient: string;
