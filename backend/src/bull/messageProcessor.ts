@@ -42,14 +42,22 @@ messageQueue.process(5, async (job) => {
 
 });
 
-messageQueue.on("failed", (job, err) => {
-    //console.error(`Job ${job.id} falhou com o erro: ${err.message}`);
-});
-  
-messageQueue.on("completed", (job) => {
-    //console.log(`Job ${job.id} foi concluído com sucesso.`);
+messageQueue.on("ready", () => {
+  console.log("Queue is ready!");
 });
 
-messageQueue.on("stalled", (job) => {
-    //console.warn(`Job ${job.id} travou e será reprocessado.`);
+messageQueue.on("error", (error) => {
+  console.error("Queue error:", error);
+});
+
+messageQueue.on("active", (job) => {
+  console.log(`Job ${job.id} is now active`);
+});
+
+messageQueue.on("completed", (job) => {
+  console.log(`Job ${job.id} has been completed`);
+});
+
+messageQueue.on("failed", (job, error) => {
+  console.error(`Job ${job.id} has failed:`, error);
 });
