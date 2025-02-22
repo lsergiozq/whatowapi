@@ -50,19 +50,10 @@ const removeApi = async (req: Request, res: Response): Promise<Response> => {
   { 
     await DeleteBaileysService(whatsappClient.id);
     const wbot = getWbot(whatsappClient.id);
-    wbot.logout();
-    await DeleteWhatsAppService(whatsappClient.id.toString());
-    
-    removeWbot(+whatsappClient.id);
-  
-   const io = getIO();
-   io.emit("whatsapp", {
-      action: "delete",
-      whatsappId: +whatsappClient.id
-   });
-}
 
-  return res.status(200).json({ message: "Session disconnected." });
+    wbot.logout();
+  
+    return res.status(200).json({ message: "Session disconnected." });
 };
 
 const updateApi = async (req: Request, res: Response): Promise<Response> => {
