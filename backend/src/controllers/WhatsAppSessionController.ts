@@ -52,8 +52,12 @@ const removeApi = async (req: Request, res: Response): Promise<Response> => {
     const wbot = getWbot(whatsappClient.id);
 
     wbot.logout();
-  
     return res.status(200).json({ message: "Session disconnected." });
+  }
+  else
+  {
+    res.status(200).json({ message: "IdClient não encontrado." });
+  }    
 };
 
 const updateApi = async (req: Request, res: Response): Promise<Response> => {
